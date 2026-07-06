@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Devis de {{data.client.name}}</h2>
+
+<mat-dialog-content>
+  @if (data.devis.length > 0) {
+  <table class="devis-subtable">
+    <thead>
+      <tr>
+        <th class="p-2 pb-0">Catégorie</th>
+        <th class="p-2 pb-0">Date</th>
+        <th class="p-2 pb-0">Échéance</th>
+        <th class="p-2 pb-0">Montant</th>
+        <th class="p-2 pb-0">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (d of data.devis; track d.id) {
+      <tr>
+        <td class="p-2">{{d.categorie}}</td>
+        <td class="p-2">{{d.date}}</td>
+        <td class="p-2">{{d.echeance}}</td>
+        <td class="p-2">{{d.montant}} €</td>
+        <td class="p-2">{{d.statut}}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  } @else {
+  <p>Aucun devis pour ce client.</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Fermer</button>
+</mat-dialog-actions>

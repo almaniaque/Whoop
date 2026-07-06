@@ -1,0 +1,191 @@
+<!-- Overlay -->
+<div class="overlay" (click)="close()"></div>
+
+<!-- Panel -->
+<div class="panel">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="header-left">
+      <div class="mono accent-text">Référence client : </div>
+      <span class="devis-id">{{ devis?.id }}</span>
+    </div>
+
+    <div class="mono accent-text"> Statut :
+      <span class="statut-badge">{{ devis?.statut }}</span>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-icon-text" (click)="imprimer()">Imprimer</button>
+      <button class="btn-icon-text" (click)="exportPdf()">PDF</button>
+      <button class="btn-icon" (click)="close()">✕</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="panel-body" #content>
+    <form [formGroup]="devisForm" (ngSubmit)="onSubmit()">
+
+
+      <div class="section-top">
+        <div class="emetteur">
+          <div id="whoop">
+            <img src="/image/WhoopStackLogo.png" alt="Whoop Stack Logo" class="logo">
+            <span class="logo-text">Whoop</span><span id="stack" class="mono accent-text">Stack</span>
+          </div>
+          <div class="emetteur-info">
+            <div class="emetteur-name">Laurent Dumas — Freelance BTP</div>
+            <div>14 rue des Artisans, 69001 Lyon</div>
+            <div class="mono">SIRET 892 456 123 00014</div>
+            <div class="mono">l.dumas&#64;whoopstack.fr</div>
+          </div>
+        </div>
+        <div class="reference">
+          <div class="reference-title">DEVIS</div>
+          <div class="reference-info mono">
+            <div><span class="muted">Référence — </span><strong>{{ devis?.id }}</strong></div>
+            <div class="ref-row">
+              Émis le : <br>
+              <span class="emis">{{ devis?.date }}</span>
+            </div>
+            <div class="ref-row">
+              Valable jusqu'au : <br>
+              <span class="valable">{{ devis?.echeance }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Client -->
+      <div class="section-client">
+        <div id="destinataire">
+          <div class="mono accent-text">DESTINATAIRE : <span class="client"> {{devis?.client?.name}} </span></div>
+
+          <div class="mono accent-text"> Catégorie : <span class="categorie">{{ devis?.categorie }}</span></div>
+
+
+
+        </div>
+
+        <div class="mono accent-text">OBJET : </div>
+
+        <span class="valable">Développement d'une application web de gestion de stocks avec tableau de bord analytique,
+          API REST et interface d'administration. </span>
+
+
+
+      </div>
+      <!-- Lignes -->
+      <div class="section-label">
+      </div>
+
+      <table class="lignes-table">
+        <thead>
+          <tr>
+            <th class="th-left">PRESTATION</th>
+            <th class="th-right">QUANTITE</th>
+            <th class="th-right">P.U.HT</th>
+            <th class="th-right">TOTAL HT</th>
+            <th></th>
+
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of devis?.prestation; track p.id) {
+          <tr>
+            <td>{{ p.intitule }}</td>
+            <td>{{ p.quantite }} j</td>
+            <td>{{ p.montant }} €</td>
+            <td>{{ p.montant * p.quantite }} €</td>
+          </tr>
+          }
+          <tr>
+            <td>Maintenance corrective (Support technique, corrections de bugs, garantie post-livraison)</td>
+            <td>3 mois</td>
+            <td>40 €</td>
+            <td>3600 €</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- Totaux -->
+      <div class="totaux">
+        <div class="totaux-inner">
+          <div class="totaux-row">
+            <span class="muted">Total HT</span>
+            <span class="mono">{{ devis?.montant }} €</span>
+          </div>
+          <div class="totaux-row">
+            <span class="muted">TVA (20%)</span>
+            <span class="mono">{{ totalTVA }} €</span>
+          </div>
+          <div class="totaux-row totaux-ttc">
+            <span>Total TTC</span>
+            <span class="mono accent-text">{{ totalTTC }} €</span>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="section-footer">
+
+        <table class="lignes-table">
+          <thead>
+            <tr>
+              <th class="th-left">Délai de réalisation</th>
+              <th class="th-right">Modalités de paiemen </th>
+              <th class="th-right">Mode de paiement</th>
+              <th class="th-right">Pénalités de retard </th>
+              <th class="th-right"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Environ 3 mois </td>
+              <td>30 % à la commande
+                40 % à la livraison
+                30 % à la recette </td>
+              <td>Virement bancaire IBAN : FR76 1234 5678 901</td>
+              <td>3x taux légal Indemnité forfaitaire : 40 €</td>
+
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="signTotal">
+          <div class="signature">
+            <div class="mono accent-text">SIGNATURE CLIENT</div>
+
+
+            <span> Fait le : {{devis?.date}}</span>
+            <span>Nom et Signature : </span>
+          </div>
+
+          <div class="signature">
+            <div class="mono accent-text">SIGNATURE SOCIETE</div>
+            <span> Fait le : {{devis?.date}}</span>
+            <span>Nom et Signature : </span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <button type="button" class="btn-cancel" (click)="close()">Annuler</button>
+    <div style="display:flex; gap:8px">
+      <button *ngIf="devis?.statut === 'Refusé'" type="button" class="btn-secondary"
+        (click)="changerStatut('En cours')">
+        Remettre en cours
+      </button>
+
+      <button *ngIf="!readOnly" type="button" class="btn-primary" (click)="onSubmit()" [disabled]="devisForm.invalid">
+        Enregistrer
+      </button>
+    </div>
+  </div>
+
+</div>

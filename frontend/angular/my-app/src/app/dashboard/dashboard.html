@@ -1,0 +1,166 @@
+<main class="container py-5 dashboard-page">
+
+    <section class="row g-3">
+        <!-- carte d'affichage pour le Chiffre d'affaire -->
+        <article class="col-12 col-md-6 col-xl-3">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body">
+                    <h5 class="dashboard-card-title">Chiffre d'affaires</h5>
+
+                    <h2 class="dashboard-value">
+                        {{ stats?.chiffreAffaires ?? 0 }} €
+                    </h2>
+
+                    <p class="text-ws-success mb-0">
+                        {{ stats?.evolutionChiffreAffaires ?? 0 }}% vs mois dernier
+                    </p>
+                </section>
+            </section>
+        </article>
+        <!-- carte d'affichage pour le Nombre de devis emis -->
+        <article class="col-12 col-md-6 col-xl-3">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body">
+                    <h5 class="dashboard-card-title">Devis émis</h5>
+
+                    <h2 class="dashboard-value">
+                        {{ stats?.devisEmis ?? 0 }}
+                    </h2>
+
+                    <p class="text-ws-success mb-0">
+                        {{ stats?.evolutionDevis ?? 0 }}% vs mois dernier
+                    </p>
+                </section>
+            </section>
+        </article>
+        <!-- carte d'affichage pour le Taux de conversion de devis -->
+        <article class="col-12 col-md-6 col-xl-3">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body">
+                    <h5 class="dashboard-card-title">Taux de conversion</h5>
+
+                    <h2 class="dashboard-value">
+                        {{ stats?.tauxConversion ?? 0 }}%
+                    </h2>
+
+                    <p class="text-ws-success mb-0">
+                        {{ stats?.evolutionConversion ?? 0 }}% vs mois dernier
+                    </p>
+                </section>
+            </section>
+        </article>
+        <!-- carte d'affichage pour le delais de reponse-->
+        <article class="col-12 col-md-6 col-xl-3">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body">
+                    <h5 class="dashboard-card-title">Délai moyen de réponse</h5>
+
+                    <h2 class="dashboard-value">
+                        {{ stats?.delaiMoyenReponse ?? 0 }} jours
+                    </h2>
+
+                    <p class="text-ws-success mb-0">
+                        {{ stats?.evolutionDelai ?? 0 }}% vs mois dernier
+                    </p>
+                </section>
+            </section>
+        </article>
+    </section>
+
+    <section class="row g-3 mt-1">
+        <!-- chart sur l'evolution du CA des 6 dernier mois -->
+        <article class="col-12 col-xl-8">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body ">
+                    <h5 class="card-title">Évolution du CA</h5>
+                    <p class="card-text text-muted">6 derniers mois</p>
+                    <div class="chart-wrapper">
+                        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line">
+                        </canvas>
+                    </div>
+                </section>
+            </section>
+        </article>
+        <!-- chart sur l'evolution du Nombre de devis emis sur les 6 dernier mois -->
+        <article class="col-12 col-xl-4">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body d-flex flex-column">
+                    <h5 class="card-title">Devis / mois</h5>
+                    <p class="card-text text-muted">Volume mensuel</p>
+                    <div style="flex: 1; min-height: 0; position: relative;">
+                        <div class="chart-wrapper">
+                            <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar">
+                            </canvas>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </article>
+    </section>
+
+    <section class="row g-3 mt-1">
+        <!-- chart sur la repartition des devis totaux -->
+        <article class="col-12 col-xl-4">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body">
+                    <h5 class="card-title">Répartition des statuts</h5>
+
+                    <section class="position-relative d-flex justify-content-center align-items-center">
+                        <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions"
+                            [plugins]="doughnutPlugins" type="doughnut">
+                        </canvas>
+                        <article class="donut-center-label">
+                            <aside class="dashboard-value">{{ totalDevis }}</aside>
+                            <aside class="dashboard-card-title">devis</aside>
+                        </article>
+                    </section>
+
+                </section>
+            </section>
+        </article>
+
+        <!-- tableau des 10 derniers devis -->
+        <article class="col-12 col-xl-8">
+            <section class="card shadow-sm border-0 h-100">
+                <section class="card-body">
+                    <h5 class="card-title">Derniers devis</h5>
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Montant</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (stats?.derniersDevis?.length) {
+                            @for (devis of stats!.derniersDevis; track devis.id) {
+                            <tr>
+                                <td>{{ devis.clientNom }}</td>
+                                <td>{{ devis.montant | number:'1.0-0' }} €</td>
+                                <td>
+                                    <span>{{ devis.date }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill" [ngClass]="getStatutClass(devis.statut)">
+                                        {{ getStatutLabel(devis.statut) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            }
+                            } @else {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">
+                                    Aucun devis enregistré
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+        </article>
+    </section>
+</main>

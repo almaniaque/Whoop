@@ -1,0 +1,84 @@
+.dashboard-page {
+    padding-top: 110px;
+    background-color: var(--ws-bg);
+    min-height: 100vh;
+}
+
+.dashboard-title {
+    color: var(--ws-text-light);
+    font-weight: 700;
+}
+
+.dashboard-subtitle {
+    color: var(--ws-muted);
+}
+
+.dashboard-card {
+    background-color: var(--ws-card-bg);
+    border: 1px solid var(--ws-border);
+    border-radius: var(--ws-radius);
+    box-shadow: var(--ws-shadow);
+}
+
+.dashboard-text {
+    color: var(--ws-text-light);
+}
+
+.dashboard-card-title {
+    color: var(--ws-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04rem;
+}
+
+.dashboard-value {
+    color: var(--ws-text);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+
+
+.progress {
+    height: 20px;
+    background-color: #ebe8f7;
+    border-radius: 999px;
+}
+
+.progress-bar-ws {
+    background-color: var(--ws-primary-soft);
+}
+
+.progress-bar-success-ws {
+    background-color: var(--ws-success);
+}
+
+.progress-bar-danger-ws {
+    background-color: var(--ws-danger);
+}
+
+.progress-bar-warning-ws {
+    background-color: var(--ws-warning);
+}
+
+
+
+
+
+.donut-center-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+
+    text-align: center;
+    pointer-events: none;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    /* ← hauteur fixe, ajustez selon vos besoins */
+    width: 100%;
+}

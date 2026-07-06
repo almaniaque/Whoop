@@ -1,0 +1,81 @@
+/* You can add global styles to this file, and also import other style files */
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+:root {
+    /* Couleurs principales */
+    --ws-primary: #170d5c;
+    --ws-primary-dark: #100747;
+    --ws-primary-soft: #2a1f77;
+
+    /* Fonds */
+    --ws-bg: #f5f3fb;
+    --ws-sidebar-bg: #160b55;
+    --ws-card-bg: #ffffff;
+    --ws-nav-bg: #2a1f77;
+
+    /* Texte */
+    --ws-text: #15102f;
+    --ws-text-light: #ffffff;
+    --ws-muted: #ada5d4;
+
+    /* Bordures */
+    --ws-border: #ddd8f0;
+    --ws-border-strong: #cfc8ea;
+
+    /* États */
+    --ws-success: #2f6b12;
+    --ws-danger: #b3261e;
+    --ws-warning: #b98200;
+
+    /* Effets */
+    --ws-shadow: 0 8px 24px rgba(23, 13, 92, 0.08);
+    --ws-radius: 18px;
+}
+
+body {
+    background-color: var(--ws-bg);
+    color: var(--ws-text);
+}
+
+.text-ws-muted {
+    color: var(--ws-muted);
+}
+
+.text-ws-success {
+    color: var(--ws-success);
+}
+
+.text-ws-danger {
+    color: var(--ws-danger);
+}
+
+.bg-ws-primary {
+    background-color: var(--ws-primary);
+    color: var(--ws-text-light);
+}
+
+.btn-ws-primary {
+    background-color: var(--ws-primary);
+    color: var(--ws-text-light);
+    border: 1px solid var(--ws-primary-soft);
+}
+
+.btn-ws-primary:hover {
+    background-color: var(--ws-primary-soft);
+    color: var(--ws-text-light);
+}
+
+.btn-ws-outline {
+    background-color: transparent;
+    color: var(--ws-primary);
+    border: 1px solid var(--ws-border-strong);
+}
+
+.btn-ws-outline:hover {
+    background-color: var(--ws-primary);
+    color: var(--ws-text-light);
+}
+
+a {
+    text-decoration: none;
+}

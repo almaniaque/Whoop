@@ -1,0 +1,98 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <button type="button" class="btn-close" (click)="fermer.emit()" aria-label="Fermer">
+        &times;
+    </button>
+
+
+    <h2 class="form-title">NOUVEAU DEVIS</h2>
+
+    <!-- Info entreprise -->
+
+    <input id="nom" formControlName="nom" placeholder="Nom de l'entreprise">
+    <input formControlName="adresse" placeholder="Adresse entreprise" />
+    <input formControlName="siret" placeholder="Numero de Siret" />
+    <input formControlName="email" placeholder="Adresse mail" type="email" />
+
+    <!-- Info client -->
+
+    <div class="ligne-source-toggle">
+        <button type="button" [class.active]="form.value.sourceClient === 'existant'"
+            (click)="changerSourceClient('existant')">
+            Client existant
+        </button>
+        <button type="button" [class.active]="form.value.sourceClient === 'nouveau'"
+            (click)="changerSourceClient('nouveau')">
+            Nouveau client
+        </button>
+    </div>
+
+    @if (form.value.sourceClient === 'existant') {
+    <select formControlName="clientId">
+        <option value="" disabled selected>Choisir un client</option>
+        <option *ngFor="let c of clients" [value]="c.id">{{ c.name }}</option>
+    </select>
+    } @else {
+    <input formControlName="nomClient" placeholder="Nom du nouveau client" />
+    }
+
+    <!-- Info devis  -->
+
+    <h5 class="form-title"> Informations </h5>
+
+    <select formControlName="categorie">
+        <option value="" disabled selected>Choisir une catégorie</option>
+        <option value="Site vitrine">Site vitrine</option>
+        <option value="Site E-commerce">Site E-commerce</option>
+        <option value="Maintenance de site">Maintenance de site</option>
+    </select>
+
+    <!-- date  -->
+       <h5 class="form-title"> Date d'émission  </h5>
+    <input formControlName="dateDebut" type="date" placeholder="Date de début" />
+     <h5 class="form-title"> Date d'échéance </h5>
+<input formControlName="echeance" type="date" placeholder="Date d'échéance" />
+
+
+    <h5 class="form-title"> Prestations </h5>
+    <div formArrayName="lignes">
+        @for (ligne of lignes.controls; track $index) {
+        <div [formGroupName]="$index" class="ligne">
+
+            <div class="ligne-source-toggle">
+                <button type="button" [class.active]="ligne.value.source === 'existante'"
+                    (click)="changerSource($index, 'existante')">
+                    Prestation existante
+                </button>
+                <button type="button" [class.active]="ligne.value.source === 'nouvelle'"
+                    (click)="changerSource($index, 'nouvelle')">
+                    Nouvelle prestation
+                </button>
+            </div>
+
+            @if (ligne.value.source === 'existante') {
+            <select formControlName="prestationId" (change)="selectionnerPrestation($index, $any($event.target).value)">
+                <option value="" disabled selected>Choisir une prestation</option>
+                @for (p of prestationsDisponibles; track p.idPrestation) {
+                <option [value]="p.idPrestation">{{ p.intitule }}</option>
+                }
+            </select>
+            } @else {
+            <input formControlName="intitule" placeholder="Intitulé" />
+            }
+
+            <input formControlName="quantite" type="number" placeholder="nombre jours" />
+            <input formControlName="montant" type="number" placeholder="Montant/jour" />
+            <button type="button" (click)="supprimerLigne($index)">✕</button>
+        </div>
+        }
+    </div>
+    <button type="button" (click)="ajouterLigne()">+ Ajouter</button>
+
+ <div *ngIf="messageValidation" class="message-validation">
+    {{ messageValidation }}
+</div>
+    <button type="button" (click)="validerDevis()">Valider</button>
+
+
+</form>

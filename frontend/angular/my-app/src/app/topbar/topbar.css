@@ -1,0 +1,177 @@
+.sidebar {
+  width: 270px;
+  background: #140c55;
+  color: #b8b3d9;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: margin-left 0.25s ease;
+  padding-top: 35px;
+  z-index: 1040;
+}
+
+.sidebar.sidebar-closed {
+  margin-left: -270px;
+}
+
+.topbar {
+  margin-left: 270px;
+  width: calc(100% - 270px);
+  transition: margin-left 0.25s ease, width 0.25s ease;
+  background: linear-gradient(135deg, #5a4ec7 0%, #2d2660 70%);
+  border-bottom: 1px solid #eee;
+}
+
+.topbar.topbar-expanded {
+  margin-left: 0;
+  width: 100%;
+}
+
+.btn-sidebar-toggle {
+  background: #140c55;
+  border: none;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-image {
+  width: 90px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.logo-text {
+  width: 60%;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.nav-section-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: #6f6894;
+  font-weight: 600;
+}
+
+.nav-link {
+  color: #b8b3d9;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-weight: 500;
+}
+
+.user-profile {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #6f6894;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.user-name {
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.user-role {
+  font-size: 0.7rem;
+  color: #8b85b8;
+}
+
+.topbar-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: white;
+}
+
+.topbar-subtitle {
+  font-size: 0.85rem;
+  color: #8b85b8;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.search-input {
+  border: 1px solid #e0e0e0;
+  background: #ede9ff;
+  border-radius: 20px;
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  font-size: 0.85rem;
+  width: 220px;
+}
+
+.btn-notification {
+  background: #ede9ff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ Style du menu Angular Material pour correspondre à la sidebar */
+::ng-deep .mat-mdc-menu-panel {
+  background-color: #1a1260 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  min-width: 200px !important;
+}
+
+::ng-deep .mat-mdc-menu-item {
+  color: #b8b3d9 !important;
+  font-size: 0.9rem !important;
+}
+
+::ng-deep .mat-mdc-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
+}

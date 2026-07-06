@@ -1,0 +1,133 @@
+<div class="modal-container">
+
+  <!-- Header -->
+  <div class="modal-header">
+    <h2 mat-dialog-title>
+      <i class="bi bi-gear me-2"></i> Paramètres
+    </h2>
+  </div>
+
+  <!-- Contenu -->
+  <mat-dialog-content>
+
+    <mat-tab-group> <!-- crée les onglets -->
+
+      <mat-tab label="Profil">
+        <div class="tab-content" [formGroup]="profilForm">
+
+          <!-- Avatar -->
+          <div class="avatar-section">
+            <div class="avatar-large" [style.backgroundImage]="photoPreviewUrl ? 'url(' + photoPreviewUrl + ')' : null">
+              <span *ngIf="!photoPreviewUrl">LD</span>
+            </div>
+            <div>
+              <button mat-stroked-button class="btn-photo" type="button" [disabled]="photoUploading"
+                (click)="ouvrirSelecteurPhoto()">
+                {{ photoUploading ? 'Envoi en cours...' : 'Changer la photo' }}
+              </button>
+              <div class="photo-error" *ngIf="photoError">{{ photoError }}</div>
+            </div>
+            <input #photoInput type="file" accept="image/png,image/jpeg,image/webp" hidden
+              (change)="onPhotoSelected($event)">
+          </div>
+
+          <!-- Champs -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nom complet</mat-label>
+            <input matInput formControlName="nom" #profilName>
+            <mat-error *ngIf="profilForm.get('nom')?.hasError('required')">Le nom est obligatoire</mat-error>
+            <mat-error *ngIf="profilForm.get('nom')?.hasError('minlength')">Le nom doit faire au moins 2
+              caractères</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email">
+            <mat-error *ngIf="profilForm.get('email')?.hasError('required')">L'email est obligatoire</mat-error>
+            <mat-error *ngIf="profilForm.get('email')?.hasError('email')">Format d'email invalide</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Numéro de SIRET</mat-label>
+            <input matInput formControlName="nbSiret">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Téléphone</mat-label>
+            <input matInput formControlName="telephone">
+            <mat-error *ngIf="profilForm.get('telephone')?.hasError('required')">Le téléphone est
+              obligatoire</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Adresse</mat-label>
+            <input matInput formControlName="adresse">
+          </mat-form-field>
+
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Préférences">
+        <div class="tab-content">
+
+          <!-- Notifications -->
+          <div class="preference-item">
+            <div>
+              <div class="preference-label">Notifications</div>
+              <div class="preference-desc">Recevoir les alertes en temps réel</div>
+            </div>
+            <mat-slide-toggle [(ngModel)]="preferences.notifications"></mat-slide-toggle>
+          </div>
+
+          <!-- Emails -->
+          <div class="preference-item">
+            <div>
+              <div class="preference-label">Résumé par email</div>
+              <div class="preference-desc">Recevoir un résumé quotidien par email</div>
+            </div>
+            <mat-slide-toggle [(ngModel)]="preferences.emailsResume"></mat-slide-toggle>
+          </div>
+
+          <!-- Langue -->
+          <mat-form-field appearance="outline" class="full-width mt-3">
+            <mat-label>Langue</mat-label>
+            <mat-select [(ngModel)]="preferences.langue">
+              <mat-option value="fr">Français</mat-option>
+              <mat-option value="en">English</mat-option>
+              <mat-option value="es">Español</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Thème -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Thème</mat-label>
+            <mat-select [(ngModel)]="preferences.theme">
+              <mat-option value="clair">Clair</mat-option>
+              <mat-option value="sombre">Sombre</mat-option>
+              <mat-option value="systeme">Système</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Sécurité">
+        <div class="tab-content">
+
+          <app-change-password></app-change-password>
+
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+
+  </mat-dialog-content>
+
+  <!-- Footer -->
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close class="btn-annuler">Annuler</button>
+    <button mat-flat-button color="primary" (click)="sauvegarder()" [disabled]="profilForm.invalid">Sauvegarder</button>
+  </mat-dialog-actions>
+
+
+
+</div>

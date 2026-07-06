@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Modifier le client' : 'Ajouter un client' }}</h2>
+
+<mat-dialog-content>
+  @if (!confirmingDelete) {
+    <form [formGroup]="form" class="client-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="name" required>
+        @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+          <mat-error>Le nom est requis.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Entreprise</mat-label>
+        <input matInput formControlName="entreprise" required>
+        @if (form.get('entreprise')?.hasError('required') && form.get('entreprise')?.touched) {
+          <mat-error>L'entreprise est requise.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" required>
+        @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+          <mat-error>L'email est requis.</mat-error>
+        }
+        @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+          <mat-error>Format d'email invalide.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Téléphone</mat-label>
+        <input matInput formControlName="telephone" required>
+        @if (form.get('telephone')?.hasError('required') && form.get('telephone')?.touched) {
+          <mat-error>Le téléphone est requis.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Ville</mat-label>
+        <input matInput formControlName="ville" required>
+        @if (form.get('ville')?.hasError('required') && form.get('ville')?.touched) {
+          <mat-error>La ville est requise.</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  } @else {
+    <p class="confirm-text">
+      Voulez-vous vraiment supprimer <strong>{{data.client?.name}}</strong> ? Cette action est irréversible.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (!confirmingDelete) {
+    @if (isEditMode) {
+      <button mat-button color="warn" (click)="askDelete()" class="delete-btn">Supprimer</button>
+    }
+    <button mat-button (click)="close()">Annuler</button>
+    <button mat-flat-button color="primary" (click)="save()">
+      {{ isEditMode ? 'Enregistrer' : 'Ajouter' }}
+    </button>
+  } @else {
+    <button mat-button (click)="cancelDelete()">Annuler</button>
+    <button mat-flat-button color="warn" (click)="confirmDelete()">Confirmer la suppression</button>
+  }
+</mat-dialog-actions>

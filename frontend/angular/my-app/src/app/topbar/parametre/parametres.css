@@ -1,0 +1,103 @@
+.modal-container {
+    width: 520px;
+
+}
+
+/* Style du header */
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #140c55;
+}
+
+/* Style contenu onglets */
+
+.tab-content {
+    padding: 20px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Style section avatar */
+
+.avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.avatar-large {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #6f6894;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.photo-error {
+    color: #d32f2f;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* Style champs + éléments de préférences */
+
+.full-width {
+    width: 100%;
+}
+
+.mt-3 {
+    margin-top: 16px;
+}
+
+
+.preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.preference-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a2e;
+}
+
+.preference-desc {
+    font-size: 0.8rem;
+
+    margin-top: 2px;
+}
+
+/* style des bouton */
+::ng-deep .modal-container .btn-sauvegarder {
+    --mat-button-filled-container-color: #3b318a !important;
+    --mat-button-filled-label-text-color: #ffffff !important;
+}
+
+::ng-deep .modal-container .btn-annuler,
+::ng-deep .modal-container .btn-photo {
+    --mat-button-outlined-label-text-color: #3b318a !important;
+    --mat-button-outlined-outline-color: #3b318a !important;
+}

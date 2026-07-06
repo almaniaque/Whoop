@@ -1,0 +1,171 @@
+table {
+  width: 15%;
+  font-family: sans-serif;
+  font-size: 14px;
+}
+
+tr.mat-mdc-header-row {
+  background-color: #F4F3FA;
+}
+
+.table-container {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  /* ajuste selon ton header/menu */
+}
+
+th {
+  color: #888;
+  font-weight: 500;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+td {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+tr:hover {
+  background-color: #F4F3FA;
+}
+
+td:first-child {
+  color: #8B87AF;
+  font-size: 13px;
+}
+
+td:nth-child(2) {
+  font-weight: 600;
+}
+
+td:nth-child(3) {
+  color: #888;
+}
+
+td:nth-child(4) {
+  font-weight: 500;
+}
+
+td:nth-child(5),
+td:nth-child(6) {
+  color: #555;
+}
+
+td:nth-child(7) button {
+  border: none;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+button i {
+  color: inherit;
+}
+
+button.Accepté {
+  background-color: #F0FDF4;
+  color: #2e7d32;
+}
+
+button.En_attente {
+  background-color: #FFFBEB;
+  color: #92400E;
+}
+
+button.En_cours {
+  background-color: #EFF6FF;
+  color: #1565c0;
+}
+
+button.Refusé {
+  background-color: #fdecea;
+  color: #c62828;
+}
+
+button.Annulé {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+td:last-child {
+  color: #aaa;
+  text-align: right;
+  padding-right: 16px;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.search-input {
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  font-size: 0.85rem;
+  width: 220px;
+}
+
+button.devis {
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+}
+
+button.devis.active {
+  background-color: #534A9C;
+  color: white;
+  border-color: #534A9C;
+}
+
+#menu {
+  display: flex;
+  flex-direction: row;
+
+  padding-top: 50px;
+  padding-bottom: 25px;
+  padding-left: 15px;
+}
+
+.modifier-btn {
+  background-color: #f0d4ea;
+  color: #948699;
+  margin-top: 10px;
+}
+
+.btn-voir {
+
+  background-color: #d9deeb;
+  color: #373538;
+  border-radius: 5px;
+  border: none;
+  padding: 5px;
+
+}
+
+#newDevis {
+  background-color: #534A9C;
+  color: #f3efef;
+
+}
+
+

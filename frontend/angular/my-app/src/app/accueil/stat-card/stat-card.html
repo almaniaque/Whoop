@@ -1,0 +1,51 @@
+<div class="row g-3">
+    <div class="col-sm-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-header d-flex justify-content-between align-items-center">
+                    <span class="stat-label">DEVIS (6 DERNIERS MOIS)</span>
+                    <i class="bi bi-file-text"></i>
+                </div>
+                <div class="stat-value">{{ cumulDevisSixMois }}</div>
+
+                <div class="stat-trend positive"> {{ stats?.evolutionDevis }} % vs 6 derniers mois</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-header d-flex justify-content-between align-items-center">
+                    <span class="stat-label">TAUX D'ACCEPTATION</span>
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-value">{{ stats?.tauxConversion ?? 0 }}%</div>
+                <div class="stat-trend positive">{{ stats?.evolutionConversion }} % vs mois dernier</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-header d-flex justify-content-between align-items-center">
+                    <span class="stat-label">CA EN COURS</span>
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="stat-value">{{ stats?.chiffreAffairesMois ?? 0 }} €</div>
+                <div class="stat-trend positive">{{ stats?.evolutionChiffreAffaires }} % vs mois dernier</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="stat-header d-flex justify-content-between align-items-center">
+                    <span class="stat-label">DEVIS EN ATTENTE</span>
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div class="stat-value">{{stats?.devisEnAttente ?? 0}}</div>
+                <div class="stat-trend negative"> vs mois dernier</div>
+            </div>
+        </div>
+    </div>
+</div>
