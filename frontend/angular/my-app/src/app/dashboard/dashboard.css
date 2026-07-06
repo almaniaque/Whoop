@@ -82,3 +82,17 @@
     /* ← hauteur fixe, ajustez selon vos besoins */
     width: 100%;
 }
+
+/* Couleurs de tendance des cartes (retournées par getTrendClass) :
+   une hausse favorable en vert, une baisse en rouge, sinon neutre. */
+.trend-positive {
+    color: var(--ws-success);
+}
+
+.trend-negative {
+    color: var(--ws-danger);
+}
+
+.trend-neutral {
+    color: var(--ws-muted);
+}

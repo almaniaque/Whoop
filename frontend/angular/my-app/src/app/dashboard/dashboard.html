@@ -11,8 +11,8 @@
                         {{ stats?.chiffreAffaires ?? 0 }} €
                     </h2>
 
-                    <p class="text-ws-success mb-0">
-                        {{ stats?.evolutionChiffreAffaires ?? 0 }}% vs mois dernier
+                    <p class="mb-0" [ngClass]="getTrendClass(stats?.evolutionChiffreAffaires)">
+                        {{ getTrendLabel(stats?.evolutionChiffreAffaires) }}
                     </p>
                 </section>
             </section>
@@ -27,8 +27,8 @@
                         {{ stats?.devisEmis ?? 0 }}
                     </h2>
 
-                    <p class="text-ws-success mb-0">
-                        {{ stats?.evolutionDevis ?? 0 }}% vs mois dernier
+                    <p class="mb-0" [ngClass]="getTrendClass(stats?.evolutionDevis)">
+                        {{ getTrendLabel(stats?.evolutionDevis) }}
                     </p>
                 </section>
             </section>
@@ -43,8 +43,8 @@
                         {{ stats?.tauxConversion ?? 0 }}%
                     </h2>
 
-                    <p class="text-ws-success mb-0">
-                        {{ stats?.evolutionConversion ?? 0 }}% vs mois dernier
+                    <p class="text-ws-muted mb-0">
+                        Comparaison mensuelle indisponible
                     </p>
                 </section>
             </section>
@@ -59,8 +59,8 @@
                         {{ stats?.delaiMoyenReponse ?? 0 }} jours
                     </h2>
 
-                    <p class="text-ws-success mb-0">
-                        {{ stats?.evolutionDelai ?? 0 }}% vs mois dernier
+                    <p class="text-ws-muted mb-0">
+                        Comparaison mensuelle indisponible
                     </p>
                 </section>
             </section>
