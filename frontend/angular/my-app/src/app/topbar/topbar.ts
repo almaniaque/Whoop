@@ -23,7 +23,7 @@ export class Topbar {
   private pageLabels: Record<string, string> = {
     '/accueil': 'Accueil',
     '/dashboard': 'Dashboard',
-    '/menu-devis': 'gestion des devis',
+    '/menu-devis': 'Gestion des devis',
     '/clients': 'Portefeuille clients',
     '/parametres': 'Paramètres',
   };
