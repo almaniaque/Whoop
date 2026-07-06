@@ -4,8 +4,7 @@
         &times;
     </button>
 
-
-    <h2 class="form-title">NOUVEAU DEVIS</h2>
+    <h2 class="form-title">{{ modeEdition ? 'MODIFIER LE DEVIS' : 'NOUVEAU DEVIS' }}</h2>
 
     <!-- Info entreprise -->
 
@@ -16,6 +15,7 @@
 
     <!-- Info client -->
 
+    @if (!modeEdition) {
     <div class="ligne-source-toggle">
         <button type="button" [class.active]="form.value.sourceClient === 'existant'"
             (click)="changerSourceClient('existant')">
@@ -26,6 +26,7 @@
             Nouveau client
         </button>
     </div>
+    }
 
     @if (form.value.sourceClient === 'existant') {
     <select formControlName="clientId">
@@ -48,12 +49,14 @@
     </select>
 
     <!-- date  -->
-       <h5 class="form-title"> Date d'émission  </h5>
+    <h5 class="form-title"> Date d'émission </h5>
     <input formControlName="dateDebut" type="date" placeholder="Date de début" />
-     <h5 class="form-title"> Date d'échéance </h5>
-<input formControlName="echeance" type="date" placeholder="Date d'échéance" />
+    <h5 class="form-title"> Date d'échéance </h5>
+    <input formControlName="echeance" type="date" placeholder="Date d'échéance" />
 
 
+
+    <!-- Prestations  -->
     <h5 class="form-title"> Prestations </h5>
     <div formArrayName="lignes">
         @for (ligne of lignes.controls; track $index) {
@@ -87,12 +90,31 @@
         </div>
         }
     </div>
-    <button type="button" (click)="ajouterLigne()">+ Ajouter</button>
 
- <div *ngIf="messageValidation" class="message-validation">
-    {{ messageValidation }}
-</div>
-    <button type="button" (click)="validerDevis()">Valider</button>
+  <button type="button" (click)="ajouterLigne()">+ Ajouter</button>
 
+    <!-- Maintenance corrective -->
+    <h5 class="form-title"> Maintenance corrective </h5>
+    <p class="maintenance-desc">
+        Support technique, corrections de bugs, garantie post-livraison — 3 mois, 3600 €
+    </p>
+    <div class="ligne-source-toggle">
+        <button type="button" [class.active]="form.value.maintenanceCorrective === true"
+            (click)="choisirMaintenance(true)">
+            Oui
+        </button>
+        <button type="button" [class.active]="form.value.maintenanceCorrective === false"
+            (click)="choisirMaintenance(false)">
+            Non
+        </button>
+    </div>
+
+  
+
+    <div *ngIf="messageValidation" class="message-validation">
+        {{ messageValidation }}
+    </div>
+    <button type="button" (click)="validerDevis()">{{ modeEdition ? 'Enregistrer les modifications' : 'Valider'
+        }}</button>
 
 </form>

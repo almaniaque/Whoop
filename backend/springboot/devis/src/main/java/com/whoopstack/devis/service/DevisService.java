@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.whoopstack.devis.model.Client;
@@ -14,15 +15,13 @@ import com.whoopstack.devis.ressource.DevisClientDto;
 import com.whoopstack.devis.userAuth.user.AppUser;
 import com.whoopstack.devis.userAuth.user.AppUserRepository;
 
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 public class DevisService {
 
     private final DevisRepository repository;
     private final AppUserRepository appUserRepository;
     private final ClientRepository clientRepository;
-
+    
     public DevisService(DevisRepository repository,
             AppUserRepository appUserRepository,
             ClientRepository clientRepository) {

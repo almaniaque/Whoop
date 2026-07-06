@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { DevisFormComponent } from './devis-form/devis-form';
 import { NewDevisComponent } from './new-devis/new-devis';
 
+
 interface Devis {
   id: number;
   client: Client;
@@ -16,6 +17,7 @@ interface Devis {
   echeance: string;
   statut: string;
   prestation: Prestation[];
+
 }
 
 interface Client {
@@ -32,6 +34,16 @@ interface Prestation {
   quantite: number;
   montant: number;
 }
+
+interface AppUser {
+  id: number;
+  email: string;
+  name: string;
+  nbSiret: number;
+  adresse: string;
+  telephone: number;
+}
+
 
 @Component({
   selector: 'app-menu-devis',
@@ -50,6 +62,7 @@ export class MenuDevis implements OnInit {
   currentPage = 0;
   searchTerm: string = '';
   allData: Devis[] = [];
+  user:   AppUser | null = null;
 
   displayedColumns: string[] = ['id', 'client', 'categorie', 'montant', 'date', 'echeance', 'statut', 'devis'];
 
@@ -59,7 +72,25 @@ export class MenuDevis implements OnInit {
 
   ngOnInit(): void {
     this.chargerDevis();
+    this.chargerUser();
+
   }
+
+
+  chargerUser(): void {
+    const userId = localStorage.getItem('userId');
+    const auth_token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auth_token}`
+    });
+
+    this.http.get<AppUser>(`http://localhost:8080/api/auth/user/${userId}`, { headers }).subscribe({
+      next: (data) => { this.user = data; },
+      error: (err) => console.error('Erreur chargement utilisateur', err)
+    });
+  }
+
 
   chargerDevis(): void {
     let userId = localStorage.getItem('userId');
@@ -145,8 +176,8 @@ export class MenuDevis implements OnInit {
 
   modifierDevis(devis: any): void {
     this.devisAModifier = devis;
+    this.showNewDevisForm = true;
   }
-
   showNewDevisForm = false;
 
   ouvrirNouveauDevis(): void {
@@ -155,5 +186,6 @@ export class MenuDevis implements OnInit {
 
   fermerNouveauDevis(): void {
     this.showNewDevisForm = false;
+    this.devisAModifier = null;
   }
 }

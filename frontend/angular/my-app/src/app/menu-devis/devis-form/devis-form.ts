@@ -28,6 +28,16 @@ interface Client {
   entreprise: string;
 }
 
+interface AppUser {
+  id: number;
+  email: string;
+  name: string;
+  nbSiret: number;
+  adresse: string;
+  telephone: number;
+}
+
+
 @Component({
   selector: 'app-devis-form',
   standalone: true,
@@ -44,7 +54,7 @@ export class DevisFormComponent implements OnChanges {
   @Input() readOnly = false;
   @Output() fermer = new EventEmitter<void>();
   @Output() saved = new EventEmitter<Devis>();
-
+  @Input() user: AppUser | null = null;
 
   @ViewChild('content') content!: ElementRef;
 
@@ -72,18 +82,17 @@ export class DevisFormComponent implements OnChanges {
   }
 
 
-  calcul(): void {
-    this.total = 
-
-
-    this.totalTVA =  this.devis?.montant* 0.2;
-    this.totalTTC =  this.devis?.montant+ this.totalTVA;
-
-
-   
-
-  }
-
+calcul(): void {
+  const prestations = this.devis?.prestation || [];
+  
+  this.total = prestations.reduce(
+    (somme: number, p: any) => somme + (p.quantite * p.montant), 
+    0
+  );
+  
+  this.totalTVA = this.total * 0.2;
+  this.totalTTC = this.total + this.totalTVA;
+}
   close(): void {
     this.fermer.emit();
   }

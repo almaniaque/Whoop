@@ -1,111 +1,115 @@
 <div class="container">
-  <div id="menu">
+<div id="menu">
 
-    <div>
-      <div class="search-box">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Rechercher..." class="search-input" [(ngModel)]="searchTerm"
-          (input)="onSearch()">
-      </div>
+  <div>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Rechercher..." class="search-input" [(ngModel)]="searchTerm" (input)="onSearch()">
     </div>
-
-    <div class="container">
-      <button class="devis c-2" [class.active]="filtreActif === 'Tous'" (click)="setFiltre('Tous')">Tous</button>
-      <button class="devis c-2" [class.active]="filtreActif === 'Accepté'"
-        (click)="setFiltre('Accepté')">Accepté</button>
-      <button class="devis c-2" [class.active]="filtreActif === 'En_attente'" (click)="setFiltre('En_attente')">En
-        attente</button>
-      <button class="devis" [class.active]="filtreActif === 'En_cours'" (click)="setFiltre('En_cours')">En
-        cours</button>
-      <button class="devis" [class.active]="filtreActif === 'Refusé'" (click)="setFiltre('Refusé')">Refusé</button>
-    </div>
-
-    <div>
-      <button type="button" class="devis btn btn-outline-secondary" mdbRipple rippleColor="dark" id="newDevis"
-        (click)="ouvrirNouveauDevis()">+ Nouveau devis </button>
-    </div>
-
   </div>
 
-  <div class="table-container">
-    <table mat-table [dataSource]="pagedData">
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef>Référence</th>
-        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="client">
-        <th mat-header-cell *matHeaderCellDef>Client</th>
-        <td mat-cell *matCellDef="let element">{{ element.client?.name }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="categorie">
-        <th mat-header-cell *matHeaderCellDef>Catégorie</th>
-        <td mat-cell *matCellDef="let element">{{ element.categorie }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="montant">
-        <th mat-header-cell *matHeaderCellDef>Montant</th>
-        <td mat-cell *matCellDef="let element">{{ element.montant}} €</td>
-      </ng-container>
-
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef>Date</th>
-        <td mat-cell *matCellDef="let element">{{ element.date }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="echeance">
-        <th mat-header-cell *matHeaderCellDef>Échéance</th>
-        <td mat-cell *matCellDef="let element">{{ element.echeance }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="statut">
-        <th mat-header-cell *matHeaderCellDef>Statut</th>
-        <td mat-cell *matCellDef="let element">
-          <button [class]="element.statut">
-            <i [class]="getStatutIcon(element.statut)"></i>
-            {{ formatStatut(element.statut) }}
-          </button>
-          <button *ngIf="element.statut === 'En_cours' || element.statut === 'Refusé'" class="modifier-btn"
-            (click)="modifierDevis(element)">
-            <i class="fas fa-pen"></i>
-            Modifier le devis
-          </button>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="devis">
-        <th mat-header-cell *matHeaderCellDef>Devis</th>
-        <td mat-cell *matCellDef="let element">
-          <button class="btn-voir" (click)="voirDevis(element)">
-            Voir devis
-          </button>
-
-        </td>
-      </ng-container>
-
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" ;></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+  <div class="container">
+    <button class="devis c-2" [class.active]="filtreActif === 'Tous'" (click)="setFiltre('Tous')">Tous</button>
+    <button class="devis c-2" [class.active]="filtreActif === 'Accepté'" (click)="setFiltre('Accepté')">Accepté</button>
+    <button class="devis c-2" [class.active]="filtreActif === 'En_attente'" (click)="setFiltre('En_attente')">En
+      attente</button>
+    <button class="devis" [class.active]="filtreActif === 'En_cours'" (click)="setFiltre('En_cours')">En cours</button>
+    <button class="devis" [class.active]="filtreActif === 'Refusé'" (click)="setFiltre('Refusé')">Refusé</button>
   </div>
 
-  <mat-paginator [length]="dataSource.length" [pageSize]="8" (page)="onPageChange($event)">
-  </mat-paginator>
-
-
-  <app-devis-form *ngIf="devisSelectionne" [devis]="devisSelectionne" (fermer)="devisSelectionne = null">
-  </app-devis-form>
-
-
-  <app-new-devis *ngIf="showNewDevisForm" (fermer)="fermerNouveauDevis()">
-  </app-new-devis>
-
-
-  <app-devis-form *ngIf="devisSelectionne" [devis]="devisSelectionne" (fermer)="devisSelectionne = null">
-  </app-devis-form>
-
-
-  <app-new-devis *ngIf="showNewDevisForm" (fermer)="fermerNouveauDevis()" (devisCree)="newDevis($event)">
-  </app-new-devis>
+  <div>
+    <button type="button" class="devis btn btn-outline-secondary" mdbRipple rippleColor="dark"
+    id="newDevis"  (click)="ouvrirNouveauDevis()">+ Nouveau devis </button>
+  </div>
+  
 </div>
+
+<div class="table-container">
+  <table mat-table [dataSource]="pagedData">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>Référence</th>
+      <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="client">
+      <th mat-header-cell *matHeaderCellDef>Client</th>
+      <td mat-cell *matCellDef="let element">{{ element.client?.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="categorie">
+      <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+      <td mat-cell *matCellDef="let element">{{ element.categorie }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="montant">
+      <th mat-header-cell *matHeaderCellDef>Montant</th>
+      <td mat-cell *matCellDef="let element">{{ element.montant}} €</td>
+    </ng-container>
+
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Date</th>
+      <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="echeance">
+      <th mat-header-cell *matHeaderCellDef>Échéance</th>
+      <td mat-cell *matCellDef="let element">{{ element.echeance }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="statut">
+      <th mat-header-cell *matHeaderCellDef>Statut</th>
+      <td mat-cell *matCellDef="let element">
+        <button [class]="element.statut">
+          <i [class]="getStatutIcon(element.statut)"></i>
+          {{ formatStatut(element.statut) }}
+        </button>
+        <button *ngIf="element.statut === 'En_attente' || element.statut === 'Refusé'" class="modifier-btn"
+          (click)="modifierDevis(element)">
+          <i class="fas fa-pen"></i>
+          Modifier le devis
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="devis">
+      <th mat-header-cell *matHeaderCellDef>Devis</th>
+      <td mat-cell *matCellDef="let element">
+        <button class="btn-voir" (click)="voirDevis(element)">
+          Voir devis
+        </button>
+
+      </td>
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" ;></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
+
+<mat-paginator [length]="dataSource.length" [pageSize]="8" (page)="onPageChange($event)">
+</mat-paginator>
+
+
+<app-devis-form *ngIf="devisSelectionne" [devis]="devisSelectionne" (fermer)="devisSelectionne = null">
+</app-devis-form>
+
+
+<app-devis-form *ngIf="devisSelectionne" [devis]="devisSelectionne" (fermer)="devisSelectionne = null">
+</app-devis-form>
+
+<app-new-devis
+  *ngIf="showNewDevisForm"
+  [devisExistant]="devisAModifier"
+  [user]="user"
+  (fermer)="fermerNouveauDevis()"
+  (devisCree)="newDevis($event)">
+</app-new-devis>
+
+<app-devis-form
+  *ngIf="devisSelectionne"
+  [devis]="devisSelectionne"
+  [user]="user"
+  (fermer)="devisSelectionne = null"
+  ...>
+</app-devis-form>

@@ -123,163 +123,147 @@ echo ========================================
 echo Verification Node.js
 echo ========================================
 
+REM IMPORTANT : structure "a plat" avec des goto, SANS gros bloc
+REM parenthese autour de la commande PowerShell. cmd.exe compte les
+REM parentheses de PowerShell ( ( ) { } ) comme si elles fermaient
+REM le bloc - la fenetre se fermait direct. On evite donc les
+REM `if (...) else (...)` imbriques autour de PowerShell.
 call :CheckNode
-if "!NODE_OK!"=="1" (
-    echo Node !NODE_VER! deja present et compatible -^> on l'utilise.
-) else (
-    if "!NODE_VER!"=="" (
-        echo Node.js introuvable. Recherche de la derniere LTS officielle...
-    ) else (
-        echo Node !NODE_VER! incompatible avec Angular 22. Telechargement de la LTS...
-    )
-    set "NODE_MSI=%DOWNLOAD_DIR%\node-lts-x64.msi"
 
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $idx=Invoke-RestMethod 'https://nodejs.org/dist/index.json'; $rel=$idx | Where-Object { $_.lts -ne $false -and $_.files -contains 'win-x64-msi' } | Select-Object -First 1; if($null -eq $rel){ throw 'Aucune version LTS MSI trouvee' }; $url='https://nodejs.org/dist/' + $rel.version + '/node-' + $rel.version + '-x64.msi'; Write-Host 'Node URL:' $url; Invoke-WebRequest -Uri $url -OutFile '!NODE_MSI!'"
-    if errorlevel 1 (
-        echo.
-        echo ERREUR: telechargement Node.js impossible.
-        echo Installe manuellement Node.js LTS depuis nodejs.org, puis relance ce script.
-        pause
-        exit /b 1
-    )
+if "!NODE_OK!"=="1" goto NodeReady
 
-    echo Installation Node.js LTS en cours...
-    msiexec /i "!NODE_MSI!" /quiet /norestart
-    if errorlevel 1 (
-        echo ERREUR: installation Node.js impossible.
-        pause
-        exit /b 1
-    )
+if "!NODE_VER!"=="" echo Node.js introuvable. Recherche de la derniere LTS officielle...
+if not "!NODE_VER!"=="" echo Node !NODE_VER! incompatible avec Angular 22. Telechargement de la LTS...
 
-    set "PATH=%ProgramFiles%\nodejs;!PATH!"
-    call :CheckNode
-)
+set "NODE_MSI=%DOWNLOAD_DIR%\node-lts-x64.msi"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $idx=Invoke-RestMethod 'https://nodejs.org/dist/index.json'; $rel=$idx | Where-Object { $_.lts -ne $false -and $_.files -contains 'win-x64-msi' } | Select-Object -First 1; if($null -eq $rel){ throw 'Aucune version LTS MSI trouvee' }; $url='https://nodejs.org/dist/' + $rel.version + '/node-' + $rel.version + '-x64.msi'; Write-Host 'Node URL:' $url; Invoke-WebRequest -Uri $url -OutFile '!NODE_MSI!'"
+if errorlevel 1 goto NodeDownloadError
 
-if "!NODE_VER!"=="" (
-    echo.
-    echo ERREUR: Node.js reste introuvable.
-    echo Ferme et rouvre le terminal, puis relance ce script.
+echo Installation Node.js LTS en cours...
+msiexec /i "!NODE_MSI!" /quiet /norestart
+if errorlevel 1 goto NodeInstallError
+
+set "PATH=%ProgramFiles%\nodejs;!PATH!"
+call :CheckNode
+
+:NodeReady
+if "!NODE_VER!"=="" goto NodeMissing
+
+if "!NODE_OK!"=="1" echo Node !NODE_VER! present et compatible.
+if not "!NODE_OK!"=="1" (
+    echo ERREUR: Node !NODE_VER! non conforme apres installation.
+    echo Ferme/rouvre le terminal ou installe une version compatible.
     pause
     exit /b 1
 )
-if not "!NODE_OK!"=="1" (
-    echo.
-    echo ATTENTION: Node !NODE_VER! non conforme dans ce terminal.
-    echo Ferme et rouvre le terminal, puis relance ce script.
+
+echo Verification commande node...
+node -v
+if errorlevel 1 (
+    echo ERREUR: node -v a echoue.
+    pause
+    exit /b 1
 )
 
-node -v
-npm -v
+echo Verification commande npm...
+call npm -v
+if errorlevel 1 (
+    echo ERREUR: npm -v a echoue.
+    echo Node est installe mais npm ne repond pas correctement.
+    pause
+    exit /b 1
+)
+
 echo.
+goto NodeDone
+
+:NodeDownloadError
+echo.
+echo ERREUR: telechargement Node.js impossible.
+echo Installe manuellement Node.js LTS depuis nodejs.org, puis relance ce script.
+pause
+exit /b 1
+
+:NodeInstallError
+echo ERREUR: installation Node.js impossible.
+pause
+exit /b 1
+
+:NodeMissing
+echo.
+echo ERREUR: Node.js reste introuvable dans ce terminal.
+echo Ferme ce terminal, rouvre-en un nouveau et relance ce script.
+pause
+exit /b 1
+
+:NodeDone
 
 REM ============================================================
-REM 5) MYSQL SERVER - TELECHARGEMENT + CONFIGURATEUR GUI
+REM 5) MYSQL SERVER - DETECTION + CONFIGURATION SPRING
 REM ============================================================
 echo ========================================
-echo MySQL Server - installation/configuration guidee
+echo MySQL Server - detection/configuration
 echo ========================================
 echo.
+
+set "MYSQL_PORT_3306_USED=0"
+set "MYSQL_CLIENT_AVAILABLE=0"
 
 echo Verification du port 3306...
 netstat -ano | findstr /R /C:":3306 .*LISTENING" >nul 2>&1
 if not errorlevel 1 (
-    echo ATTENTION: le port 3306 est deja utilise.
-    echo Si c'est un ancien MySQL ou XAMPP, stoppe-le avant de continuer.
-    echo Commandes utiles si besoin:
-    echo   net stop MySQL80
-    echo   net stop MySQL84
-    echo   net stop MySQL
+    set "MYSQL_PORT_3306_USED=1"
+    echo MySQL semble deja present : le port 3306 est utilise.
+    echo On ne telecharge pas MySQL Installer.
     echo.
-    pause
-)
-
-call :FindMySQLClient
-
-if "!MYSQL_EXE!"=="" (
-    call :FindMySQLInstaller
-
-    if "!MYSQL_INSTALLER_EXE!"=="" (
-        echo MySQL Installer introuvable. Telechargement...
-        set "MYSQL_MSI=%DOWNLOAD_DIR%\mysql-installer-community-8.0.40.0.msi"
-        set "MYSQL_URL=https://dev.mysql.com/get/Downloads/MySQLInstaller/mysql-installer-community-8.0.40.0.msi"
-        call :DownloadFile "!MYSQL_URL!" "!MYSQL_MSI!"
-        if errorlevel 1 (
-            echo.
-            echo ERREUR: telechargement MySQL Installer impossible.
-            echo Telecharge MySQL Installer manuellement depuis dev.mysql.com, installe MySQL Server, puis relance ce script.
-            pause
-            exit /b 1
-        )
-
-        echo Lancement MySQL Installer...
-        start /wait msiexec /i "!MYSQL_MSI!"
-    )
-)
-
-call :FindMySQLInstaller
-
-if not "!MYSQL_INSTALLER_EXE!"=="" (
-    echo.
-    echo MySQL Installer va s'ouvrir pour configurer correctement le serveur.
-    echo.
-    echo PARAMETRES A METTRE DANS L'ASSISTANT:
-    echo   1. Setup Type        : Server Only ^(ou Developer Default si Server Only absent^)
-    echo   2. Product           : MySQL Server 8.x
-    echo   3. Config Type       : Development Computer
-    echo   4. Connectivity      : TCP/IP active, Port 3306, Open Firewall coche
-    echo   5. Authentication    : Strong Password Encryption
-    echo   6. Root password     : notez-le, il sera demande juste apres
-    echo   7. Windows Service   : MySQL80 ou MySQL84
-    echo   8. Start at System Startup : coche
-    echo   9. Execute puis Finish
-    echo.
-    echo CONSEIL EQUIPE: root comme mot de passe local simplifie les choses,
-    echo mais le script accepte n'importe quel mot de passe : il sera ecrit
-    echo automatiquement dans application.properties pour Spring Boot.
-    echo.
-    start "" "!MYSQL_INSTALLER_EXE!"
-    echo Quand la configuration MySQL est terminee, reviens ici puis appuie sur une touche.
-    pause >nul
 ) else (
+    echo Port 3306 libre.
     echo.
-    echo MySQL Installer non trouve automatiquement.
-    echo Ouvre-le manuellement depuis le menu Demarrer, configure MySQL Server,
-    echo puis reviens ici et appuie sur une touche.
-    pause >nul
 )
 
-REM Redetection apres configuration
 call :FindMySQLClient
 
-if "!MYSQL_EXE!"=="" (
+if not "!MYSQL_EXE!"=="" (
+    set "MYSQL_CLIENT_AVAILABLE=1"
+
+    for %%I in ("!MYSQL_EXE!") do set "MYSQL_BIN=%%~dpI"
+    set "PATH=!MYSQL_BIN!;!PATH!"
+
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$bin='!MYSQL_BIN!'; $p=[Environment]::GetEnvironmentVariable('Path','Machine'); if($null -eq $p){$p=''}; $parts=$p -split ';' | Where-Object { $_ -and ($_ -ne $bin) }; [Environment]::SetEnvironmentVariable('Path', ($bin + ';' + ($parts -join ';')), 'Machine')" >nul 2>&1
+
+    echo Client MySQL detecte:
+    echo !MYSQL_EXE!
     echo.
-    echo ERREUR: mysql.exe introuvable apres configuration.
-    echo MySQL Server n'a probablement pas ete ajoute dans MySQL Installer.
-    echo Relance MySQL Installer et ajoute "MySQL Server".
+) else (
+    set "MYSQL_CLIENT_AVAILABLE=0"
+
+    if "!MYSQL_PORT_3306_USED!"=="1" (
+        echo ATTENTION: serveur MySQL detecte sur le port 3306, mais mysql.exe est introuvable.
+        echo Ce n'est pas bloquant.
+        echo On va configurer Spring Boot avec le mot de passe saisi et continuer.
+        echo.
+        goto MySQLServerReady
+    )
+
+    echo ERREUR: MySQL ne semble pas actif sur le port 3306 et mysql.exe est introuvable.
+    echo.
+    echo Installe ou configure MySQL Server manuellement, puis relance ce script.
     pause
     exit /b 1
 )
 
-for %%I in ("!MYSQL_EXE!") do set "MYSQL_BIN=%%~dpI"
-set "PATH=!MYSQL_BIN!;!PATH!"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$bin='%MYSQL_BIN%'; $p=[Environment]::GetEnvironmentVariable('Path','Machine'); if($null -eq $p){$p=''}; $parts=$p -split ';' | Where-Object { $_ -and ($_ -ne $bin) }; [Environment]::SetEnvironmentVariable('Path', ($bin + ';' + ($parts -join ';')), 'Machine')" >nul 2>&1
-
-echo Client MySQL detecte:
-echo !MYSQL_EXE!
-echo.
-
+:MySQLServerReady
 echo Tentative de demarrage du service MySQL...
 net start MySQL80 >nul 2>&1
 net start MySQL84 >nul 2>&1
 net start MySQL >nul 2>&1
+net start MariaDB >nul 2>&1
 
 REM ------------------------------------------------------------
-REM Le mot de passe root N'EST PAS le meme sur tous les postes
-REM (root, admin, autre...). On le demande a l'utilisateur, on teste
-REM la connexion, et on ecrira CE mot de passe dans
-REM application.properties : MySQL et Spring Boot restent ainsi
-REM synchronises sur chaque machine. C'est ce qui causait les
-REM "Access denied" / "ERREUR MySQL" sur les autres ordinateurs.
+REM Le mot de passe root N'EST PAS le meme sur tous les postes.
+REM On le demande, puis :
+REM - si mysql.exe existe : on teste et on cree la base ;
+REM - si mysql.exe est introuvable mais serveur detecte : on continue.
 REM ------------------------------------------------------------
 set "MYSQL_TRIES=0"
 
@@ -288,33 +272,43 @@ set "MYSQL_ROOT_PASSWORD=root"
 set /p "MYSQL_ROOT_PASSWORD=Mot de passe root MySQL de CE poste [Entree = root] : "
 
 echo.
+
+if "!MYSQL_CLIENT_AVAILABLE!"=="1" goto MySQLCliTest
+goto MySQLCliUnavailable
+
+
+:MySQLCliTest
 echo Test connexion + creation base whoopstack...
+
 "!MYSQL_EXE!" -u root -p"!MYSQL_ROOT_PASSWORD!" -e "SELECT VERSION(); CREATE DATABASE IF NOT EXISTS whoopstack CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-if errorlevel 1 (
-    set /a MYSQL_TRIES+=1
-    if !MYSQL_TRIES! GEQ 3 (
-        echo.
-        echo ERREUR MySQL apres 3 tentatives.
-        echo Causes probables:
-        echo   - mot de passe root incorrect
-        echo   - le service MySQL n'est pas demarre ^(net start MySQL80 ou MySQL84^)
-        echo   - le port 3306 est occupe par une autre installation
-        echo   - MySQL Server n'a pas ete configure dans MySQL Installer
-        echo.
-        echo Solution la plus propre:
-        echo   MySQL Installer ^> Reconfigure MySQL Server ^> port 3306 ^> nouveau root password.
-        pause
-        exit /b 1
-    )
-    echo.
-    echo Connexion refusee. Nouvelle tentative !MYSQL_TRIES!/3...
-    goto AskMySQLPassword
-)
+if errorlevel 1 goto MySQLCliFailed
 
 echo.
 echo Base whoopstack OK.
 echo.
+goto MySQLPasswordDone
+
+
+:MySQLCliFailed
+echo.
+echo ATTENTION: le test avec mysql.exe a echoue.
+echo Cause probable: client MySQL incompatible ou mysql.exe mal detecte.
+echo Ce n'est pas bloquant pour Spring Boot.
+echo On continue avec le mot de passe saisi.
+echo.
+goto MySQLPasswordDone
+
+
+:MySQLCliUnavailable
+echo mysql.exe introuvable : test de connexion ignore.
+echo On continue avec le mot de passe saisi.
+echo Spring Boot utilisera application.properties.
+echo.
+goto MySQLPasswordDone
+
+
+:MySQLPasswordDone
 
 REM ============================================================
 REM 6) MISE A JOUR application.properties
@@ -329,7 +323,7 @@ if exist "!APP_PROPS!" (
     REM application.properties, au lieu d'une valeur codee en dur qui ne
     REM correspondait pas forcement au MySQL du poste.
     findstr /v /b /c:"spring.datasource.url=" /c:"spring.datasource.username=" /c:"spring.datasource.password=" "!APP_PROPS!" > "!APP_PROPS!.tmp"
-    >> "!APP_PROPS!.tmp" echo spring.datasource.url=jdbc:mysql://localhost:3306/whoopstack?useSSL=false^&serverTimezone=UTC^&allowPublicKeyRetrieval=true
+    >> "!APP_PROPS!.tmp" echo spring.datasource.url=jdbc:mysql://localhost:3306/whoopstack?createDatabaseIfNotExist=true^&useSSL=false^&serverTimezone=UTC^&allowPublicKeyRetrieval=true
     >> "!APP_PROPS!.tmp" echo spring.datasource.username=root
     >> "!APP_PROPS!.tmp" echo spring.datasource.password=!MYSQL_ROOT_PASSWORD!
     move /y "!APP_PROPS!.tmp" "!APP_PROPS!" >nul
@@ -482,29 +476,46 @@ exit /b 0
 
 :FindMySQLClient
 set "MYSQL_EXE="
+
+REM Priorite au vrai client Oracle MySQL
 for /f "delims=" %%I in ('dir "%ProgramFiles%\MySQL\MySQL Server *\bin\mysql.exe" /b /s 2^>nul') do if not defined MYSQL_EXE set "MYSQL_EXE=%%I"
 for /f "delims=" %%I in ('dir "%ProgramFiles(x86)%\MySQL\MySQL Server *\bin\mysql.exe" /b /s 2^>nul') do if not defined MYSQL_EXE set "MYSQL_EXE=%%I"
-exit /b 0
 
+REM MariaDB seulement si aucun vrai client MySQL n'est trouve
+for /f "delims=" %%I in ('dir "%ProgramFiles%\MariaDB*\bin\mysql.exe" /b /s 2^>nul') do if not defined MYSQL_EXE set "MYSQL_EXE=%%I"
+
+REM XAMPP en dernier recours uniquement
+for /f "delims=" %%I in ('dir "C:\xampp\mysql\bin\mysql.exe" /b /s 2^>nul') do if not defined MYSQL_EXE set "MYSQL_EXE=%%I"
+
+exit /b 0
 :FindMySQLInstaller
 set "MYSQL_INSTALLER_EXE="
 if exist "%ProgramFiles(x86)%\MySQL\MySQL Installer for Windows\MySQLInstaller.exe" set "MYSQL_INSTALLER_EXE=%ProgramFiles(x86)%\MySQL\MySQL Installer for Windows\MySQLInstaller.exe"
 if exist "%ProgramFiles%\MySQL\MySQL Installer for Windows\MySQLInstaller.exe" set "MYSQL_INSTALLER_EXE=%ProgramFiles%\MySQL\MySQL Installer for Windows\MySQLInstaller.exe"
 exit /b 0
 
+
+
 :CheckNode
-REM Sortie : NODE_VER = version installee (vide si absente),
-REM          NODE_OK  = 1 si compatible Angular 22 (20.19+ / 22.12+ / 24+), sinon 0.
+REM Sortie :
+REM   NODE_VER = version installee, vide si absente
+REM   NODE_OK  = 1 si compatible, sinon 0
+
 set "NODE_OK=0"
 set "NODE_VER="
+
 for /f "delims=" %%v in ('node -v 2^>nul') do set "NODE_VER=%%v"
+
 if "!NODE_VER!"=="" exit /b 0
-set "NV=!NODE_VER:v=!"
-for /f "tokens=1,2 delims=." %%a in ("!NV!") do (
-    set "NMAJ=%%a"
-    set "NMIN=%%b"
+
+REM Verification robuste directement avec Node.
+REM Evite les comparaisons CMD fragiles avec GEQ/EQU.
+node -e "const v=process.versions.node.split('.').map(Number); const ok=(v[0]>=24)||(v[0]===22&&v[1]>=12)||(v[0]===20&&v[1]>=19); process.exit(ok?0:1)" >nul 2>&1
+
+if errorlevel 1 (
+    set "NODE_OK=0"
+) else (
+    set "NODE_OK=1"
 )
-if !NMAJ! GEQ 24 set "NODE_OK=1"
-if !NMAJ! EQU 22 if !NMIN! GEQ 12 set "NODE_OK=1"
-if !NMAJ! EQU 20 if !NMIN! GEQ 19 set "NODE_OK=1"
+
 exit /b 0

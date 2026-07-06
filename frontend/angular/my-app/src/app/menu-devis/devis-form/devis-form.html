@@ -34,10 +34,10 @@
             <span class="logo-text">Whoop</span><span id="stack" class="mono accent-text">Stack</span>
           </div>
           <div class="emetteur-info">
-            <div class="emetteur-name">Laurent Dumas — Freelance BTP</div>
-            <div>14 rue des Artisans, 69001 Lyon</div>
-            <div class="mono">SIRET 892 456 123 00014</div>
-            <div class="mono">l.dumas&#64;whoopstack.fr</div>
+            <div class="emetteur-name">{{user?.name}}</div>
+            <div>{{user?.adresse}}</div>
+            <div class="mono">{{user?.nbSiret}}</div>
+            <div class="mono">{{user?.email}}</div>
           </div>
         </div>
         <div class="reference">
@@ -116,7 +116,7 @@
         <div class="totaux-inner">
           <div class="totaux-row">
             <span class="muted">Total HT</span>
-            <span class="mono">{{ devis?.montant }} €</span>
+            <span class="mono">{{ total}} €</span>
           </div>
           <div class="totaux-row">
             <span class="muted">TVA (20%)</span>
@@ -143,15 +143,14 @@
             </tr>
           </thead>
           <tbody>
+            @for (p of devis?.prestation; track p.id) {
             <tr>
-              <td>Environ 3 mois </td>
-              <td>30 % à la commande
-                40 % à la livraison
-                30 % à la recette </td>
-              <td>Virement bancaire IBAN : FR76 1234 5678 901</td>
-              <td>3x taux légal Indemnité forfaitaire : 40 €</td>
-
+              <td>{{ p.intitule }}</td>
+              <td>{{ p.quantite }} j</td>
+              <td>{{ p.montant }} €</td>
+              <td>{{ p.montant * p.quantite }} €</td>
             </tr>
+            }
           </tbody>
         </table>
 
