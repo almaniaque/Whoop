@@ -60,19 +60,27 @@ echo.
 
 REM ============================================================
 REM 2) JAVA 21
-REM On cherche un vrai JDK 21 sur disque au lieu de tester
-REM "java -version" : un Java 8/17/26 present sur le poste ferait
-REM croire que tout va bien, puis le build Maven echouerait
-REM (le projet exige Java 21, voir pom.xml).
+REM Logique "verifier avant d'installer" :
+REM   - on cherche un JDK 21 DEJA present sur le disque ;
+REM   - s'il existe, on SWITCHE dessus (JAVA_HOME) meme si le Java
+REM     par defaut du poste est plus recent (26) ou plus ancien ;
+REM   - on n'installe QUE si aucun JDK 21 n'est trouve.
+REM Le projet exige Java 21 (voir pom.xml) : un Java 8/17/26 par
+REM defaut ferait echouer le build Maven.
 REM ============================================================
 echo ========================================
 echo Verification Java 21
 echo ========================================
 
+REM Info : quel Java est actuellement par defaut sur le poste ?
+for /f "tokens=*" %%j in ('java -version 2^>^&1 ^| findstr /i "version"') do echo Java par defaut du poste : %%j
+
 call :FindJava21
 
-if "!JAVA21_DIR!"=="" (
-    echo Java 21 introuvable. Installation via winget...
+if not "!JAVA21_DIR!"=="" (
+    echo JDK 21 deja present -^> on l'utilise ^(pas de reinstallation^).
+) else (
+    echo JDK 21 absent. Installation via winget...
     winget install EclipseAdoptium.Temurin.21.JDK --silent --accept-package-agreements --accept-source-agreements
     call :FindJava21
 )
@@ -85,6 +93,7 @@ if "!JAVA21_DIR!"=="" (
     exit /b 1
 )
 
+REM On "switche" sur le JDK 21 pour CE script et de facon persistante.
 set "JAVA_HOME=!JAVA21_DIR!"
 set "PATH=!JAVA_HOME!\bin;!PATH!"
 REM JAVA_HOME persistant pour l'utilisateur courant. On ne touche PAS
@@ -92,32 +101,42 @@ REM au PATH persistant : les installeurs MSI le font proprement, et
 REM `setx PATH` tronque a 1024 caracteres (danger).
 setx JAVA_HOME "!JAVA_HOME!" >nul
 
-echo JAVA_HOME = !JAVA_HOME!
+echo JDK 21 utilise : !JAVA_HOME!
 "!JAVA_HOME!\bin\java.exe" -version
 echo.
 
 REM ============================================================
-REM 3) NODE.JS LTS
+REM 3) NODE.JS
+REM Logique "verifier avant d'installer" : on lit la version
+REM DEJA installee. Si elle est compatible Angular 22
+REM (20.19+ / 22.12+ / 24+), on la garde. Sinon (absente, trop
+REM vieille, ou ligne non supportee) on installe/met a jour la LTS.
 REM ============================================================
 echo ========================================
 echo Verification Node.js
 echo ========================================
 
-where node >nul 2>&1
-if errorlevel 1 (
-    echo Node.js introuvable. Installation via winget...
+call :CheckNode
+if "!NODE_OK!"=="1" (
+    echo Node !NODE_VER! deja present et compatible -^> on l'utilise.
+) else (
+    if "!NODE_VER!"=="" (
+        echo Node.js introuvable. Installation de la LTS via winget...
+    ) else (
+        echo Node !NODE_VER! incompatible avec Angular 22. Installation de la LTS via winget...
+    )
     winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
-    REM le MSI met a jour le PATH persistant ; pour CE terminal on ajoute a la main
+    REM le MSI met a jour le PATH persistant ; pour CE terminal on l'ajoute a la main
     set "PATH=%ProgramFiles%\nodejs;!PATH!"
-)
-
-where node >nul 2>&1
-if errorlevel 1 (
-    echo.
-    echo ERREUR: Node.js reste introuvable dans ce terminal.
-    echo Fermez ce terminal, rouvrez-en un nouveau et relancez ce script.
-    pause
-    exit /b 1
+    call :CheckNode
+    if "!NODE_OK!"=="1" (
+        echo Node !NODE_VER! installe.
+    ) else (
+        echo.
+        echo ATTENTION: Node !NODE_VER! toujours non conforme dans ce terminal.
+        echo Fermez ce terminal, rouvrez-en un nouveau et relancez ce script.
+        echo ^(ou installez une LTS recente depuis nodejs.org^)
+    )
 )
 
 node -v
@@ -241,42 +260,61 @@ echo.
 
 REM ============================================================
 REM 7) FRONTEND ANGULAR
-REM Toutes les commandes sont NON-interactives : pas de "ng add"
-REM (il pose des questions et bloque un script batch).
+REM
+REM package.json declare DEJA toutes les dependances (Angular 22,
+REM Material, Chart.js, Bootstrap, jsPDF, html2canvas, zone.js...).
+REM => une SEULE commande `npm install` installe absolument tout.
+REM
+REM On ne rajoute plus AUCUN `npm install <paquet>` a la main :
+REM ces lignes (ancienne version) modifiaient package-lock.json a
+REM chaque execution -> le lock derivait et `npm ci` cassait chez
+REM les coequipiers ; et `npm install @angular/material` NON epingle
+REM pouvait tirer une version incompatible avec Angular 22
+REM (conflit de peer dependencies -> ECHEC TOTAL de l'install).
+REM C'etait la cause du "les dependances Angular ne s'installent pas".
 REM ============================================================
 echo ========================================
 echo Installation frontend Angular
 echo ========================================
 
 cd /d "%PROJECT_ROOT%\frontend\angular\my-app"
+if not exist "package.json" (
+    echo ERREUR: package.json introuvable dans %CD%
+    pause
+    exit /b 1
+)
 
-if exist "package-lock.json" (
-    call npm ci
-    if errorlevel 1 (
-        echo npm ci a echoue, tentative avec npm install...
-        call npm install
-    )
+REM Angular 22 exige Node 20.19+, 22.12+ ou 24+. On previent si trop vieux.
+set "NODE_MAJOR=0"
+for /f "tokens=1 delims=." %%v in ('node -p "process.versions.node" 2^>nul') do set "NODE_MAJOR=%%v"
+if !NODE_MAJOR! LSS 20 (
+    echo ATTENTION: Node !NODE_MAJOR! detecte. Angular 22 exige Node 20.19+ / 22.12+ / 24+.
+    echo Le build risque d'echouer : installez une version LTS recente de Node.js.
+    echo.
+)
+
+echo Installation des dependances ^(npm install^)...
+call npm install --no-fund --no-audit
+if errorlevel 1 (
+    echo.
+    echo Echec. Nouvelle tentative en ignorant les conflits de
+    echo peer dependencies ^(--legacy-peer-deps^)...
+    call npm install --no-fund --no-audit --legacy-peer-deps
+)
+if errorlevel 1 (
+    echo.
+    echo ERREUR: installation des dependances frontend impossible.
+    echo Verifiez la connexion internet et la version de Node.js ^(node -v^).
+    pause
+    exit /b 1
+)
+
+REM Verification que la chaine Angular repond (non bloquant).
+call npx --no-install ng version >nul 2>&1
+if errorlevel 1 (
+    echo ATTENTION: Angular CLI ne repond pas. Supprimez node_modules puis relancez si besoin.
 ) else (
-    call npm install
-)
-
-if errorlevel 1 (
-    echo.
-    echo ERREUR npm install.
-    pause
-    exit /b 1
-)
-
-call npm install bootstrap bootstrap-icons chart.js ng2-charts chartjs-plugin-datalabels jspdf html2canvas
-call npm install --save-dev --save-exact @types/node@20
-call npm install --save-dev vitest @types/mocha
-call npm install @angular/material @angular/cdk
-
-if errorlevel 1 (
-    echo.
-    echo ERREUR dependances frontend.
-    pause
-    exit /b 1
+    echo Chaine Angular operationnelle.
 )
 
 cd /d "%PROJECT_ROOT%"
@@ -313,4 +351,21 @@ exit /b 0
 set "MYSQL_EXE="
 for /f "delims=" %%I in ('dir "%ProgramFiles%\MySQL\MySQL Server *\bin\mysql.exe" /b /s 2^>nul') do if not defined MYSQL_EXE set "MYSQL_EXE=%%I"
 for /f "delims=" %%I in ('dir "%ProgramFiles(x86)%\MySQL\MySQL Server *\bin\mysql.exe" /b /s 2^>nul') do if not defined MYSQL_EXE set "MYSQL_EXE=%%I"
+exit /b 0
+
+:CheckNode
+REM Sortie : NODE_VER = version installee (vide si absente),
+REM          NODE_OK  = 1 si compatible Angular 22 (20.19+ / 22.12+ / 24+), sinon 0.
+set "NODE_OK=0"
+set "NODE_VER="
+for /f "delims=" %%v in ('node -v 2^>nul') do set "NODE_VER=%%v"
+if "!NODE_VER!"=="" exit /b 0
+set "NV=!NODE_VER:v=!"
+for /f "tokens=1,2 delims=." %%a in ("!NV!") do (
+    set "NMAJ=%%a"
+    set "NMIN=%%b"
+)
+if !NMAJ! GEQ 24 set "NODE_OK=1"
+if !NMAJ! EQU 22 if !NMIN! GEQ 12 set "NODE_OK=1"
+if !NMAJ! EQU 20 if !NMIN! GEQ 19 set "NODE_OK=1"
 exit /b 0
