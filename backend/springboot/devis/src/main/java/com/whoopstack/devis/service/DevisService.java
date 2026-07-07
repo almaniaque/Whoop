@@ -2,18 +2,13 @@ package com.whoopstack.devis.service;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import com.whoopstack.devis.model.Client;
-import com.whoopstack.devis.model.Devis;
-import com.whoopstack.devis.repository.ClientRepository;
-import com.whoopstack.devis.repository.DevisRepository;
-import com.whoopstack.devis.ressource.DevisClientDto;
 import com.whoopstack.devis.userAuth.user.AppUser;
 import com.whoopstack.devis.userAuth.user.AppUserRepository;
+import com.whoopstack.devis.model.Client;
+import com.whoopstack.devis.repository.ClientRepository;
+import com.whoopstack.devis.model.Devis;
+import com.whoopstack.devis.repository.DevisRepository;
 
 @Service
 public class DevisService {
@@ -21,7 +16,7 @@ public class DevisService {
     private final DevisRepository repository;
     private final AppUserRepository appUserRepository;
     private final ClientRepository clientRepository;
-    
+
     public DevisService(DevisRepository repository,
             AppUserRepository appUserRepository,
             ClientRepository clientRepository) {
@@ -75,41 +70,4 @@ public class DevisService {
         repository.deleteById(id);
     }
 
-    // affichage des devis dans l'oglet du client
-    @Transactional(readOnly = true)
-    public List<DevisClientDto> getDevisByUserAndClient(Long userId, Long clientId) {
-
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Client introuvable avec l'id : " + clientId));
-
-        if (client.getUser() == null || !client.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Ce client n'appartient pas à cet utilisateur");
-        }
-
-        return repository.findByUserIdAndClientId(userId, clientId)
-                .stream()
-                .map(devis -> new DevisClientDto(
-                        devis.getId(),
-                        devis.getCategorie(),
-                        devis.getDate(),
-                        devis.getEcheance(),
-                        calculerMontantDevis(devis),
-                        devis.getStatut()))
-                .toList();
-    }
-
-    private int calculerMontantDevis(Devis devis) {
-        if (devis.getPrestation() == null) {
-            return 0;
-        }
-
-        return devis.getPrestation()
-                .stream()
-                .mapToInt(prestation -> prestation.getMontant() * prestation.getQuantite())
-                .sum();
-    }
 }

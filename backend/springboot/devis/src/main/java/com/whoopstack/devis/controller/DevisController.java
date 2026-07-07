@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.whoopstack.devis.model.Devis;
-import com.whoopstack.devis.ressource.DevisClientDto;
-import com.whoopstack.devis.service.DevisService; //ajout du tris des devis pour un client
+import com.whoopstack.devis.service.DevisService;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -47,6 +46,8 @@ public class DevisController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.addDevis(userId, clientId, devis));
     } // ^ ^ ajout des dep user et client
 
+
+    
     @PutMapping("/{id}")
     public ResponseEntity<Devis> updateDevisById(@PathVariable Long id, @RequestBody Devis devis) {
         return ResponseEntity.ok(service.updateDevisById(id, devis));
@@ -57,13 +58,4 @@ public class DevisController {
         service.deleteDevis(id);
         return ResponseEntity.noContent().build();
     }
-    // recuperation des devis partie client
-    @GetMapping("/users/{userId}/clients/{clientId}/devis")
-    public ResponseEntity<List<DevisClientDto>> getDevisByUserAndClient(
-            @PathVariable Long userId,
-            @PathVariable Long clientId
-    ) {
-        return ResponseEntity.ok(service.getDevisByUserAndClient(userId, clientId));
-    }
-
 }

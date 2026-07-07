@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.whoopstack.devis.userAuth.config.*;
 import com.whoopstack.devis.userAuth.user.AppUser;
 
 import jakarta.persistence.CascadeType;
@@ -20,6 +20,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @Entity
 @Table(name = "devis")
@@ -30,22 +31,15 @@ public class Devis {
     private Long id;
 
     @JsonFormat(pattern = "dd MMMM yyyy", locale = "fr")
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
     private LocalDate date;
 
     @JsonFormat(pattern = "dd MMMM yyyy", locale = "fr")
-
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
     private LocalDate echeance;
+
     private String categorie;
-
     private String statut;
-
-    public String getStatut() {
-        return statut;
-    }
-
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
@@ -58,20 +52,39 @@ public class Devis {
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "devis_prestation", joinColumns = @JoinColumn(name = "devis_id"), inverseJoinColumns = @JoinColumn(name = "prestation_id"))
-    @JsonManagedReference
     private Set<Prestation> prestation = new HashSet<>();
 
-    public Devis(Long id, LocalDate date, LocalDate echeance, String categorie, int montant, String statut,
+    public Devis() {
+    }
+
+    public Devis(Client client) {
+        this.client = client;
+    }
+
+    public Devis(Long id, LocalDate date, LocalDate echeance, String categorie, String statut,
             Set<Prestation> prestation, Client client, AppUser user) {
         this.id = id;
         this.date = date;
         this.echeance = echeance;
         this.categorie = categorie;
-
         this.statut = statut;
         this.prestation = prestation;
         this.client = client;
         this.user = user;
+    }
+
+    public int getMontant() {
+        return prestation.stream()
+                .mapToInt(p -> p.getQuantite() * p.getMontant())
+                .sum();
+    }
+
+    public String getStatut() {
+        return statut;
+    }
+
+    public void setStatut(String statut) {
+        this.statut = statut;
     }
 
     public Set<Prestation> getPrestation() {
@@ -82,20 +95,12 @@ public class Devis {
         this.prestation = prestation;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    public Devis() {
-
-    }
-
-    public Devis(Client client) {
-        this.client = client;
-    }
-
     public Client getClient() {
         return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public Long getId() {
@@ -137,5 +142,4 @@ public class Devis {
     public void setUser(AppUser user) {
         this.user = user;
     }
-
 }

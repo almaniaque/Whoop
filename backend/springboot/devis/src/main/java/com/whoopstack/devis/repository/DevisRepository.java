@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.whoopstack.devis.model.Devis;
 
 public interface DevisRepository extends JpaRepository<Devis, Long> {
@@ -29,6 +28,4 @@ public interface DevisRepository extends JpaRepository<Devis, Long> {
     List<Devis> findByUserId(Long userId);
 
     long countByUserId(Long userId);
-
-List<Devis> findByUserIdAndClientId(Long userId, Long clientId);
 }
